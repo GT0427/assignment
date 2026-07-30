@@ -1,0 +1,77 @@
+<% locals.path = '/discussions/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <a href="/discussions/<%= course.id %>" class="text-sm text-muted" style="text-decoration:none;">← Back to Discussions</a>
+    <h1><%= thread.title %></h1>
+    <p class="text-sm text-muted">
+      Posted by <strong><%= thread.author_name %></strong> (<%= thread.author_role %>) &middot;
+      <%= new Date(thread.created_at).toLocaleString() %>
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <% if (user.role === 'instructor') { %>
+      <form method="POST" action="/discussions/<%= course.id %>/thread/<%= thread.id %>/pin" style="display:inline">
+        <button type="submit" class="btn btn-outline btn-sm"><%= thread.is_pinned ? '📌 Unpin' : '📌 Pin' %></button>
+      </form>
+      <form method="POST" action="/discussions/<%= course.id %>/thread/<%= thread.id %>/delete" style="display:inline">
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this thread and all replies?')">🗑 Delete</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<% if (locals.error === 'empty') { %>
+  <div class="alert alert-error">Reply cannot be empty.</div>
+<% } %>
+<% if (locals.error === 'too_long') { %>
+  <div class="alert alert-error">Post exceeds the maximum character threshold (5000).</div>
+<% } %>
+
+<!-- Original Post -->
+<div class="card mb-4" style="border-left:4px solid var(--primary);">
+  <div class="card-body">
+    <div class="rich-content"><%= thread.content %></div>
+  </div>
+</div>
+
+<!-- Replies -->
+<div class="mb-4">
+  <h3 class="mb-2"><%= replies.length %> Repl<%= replies.length !== 1 ? 'ies' : 'y' %></h3>
+  <% if (replies.length === 0) { %>
+    <p class="text-muted">No replies yet. Be the first to respond!</p>
+  <% } else { %>
+    <% replies.forEach(r => { %>
+      <div class="reply-card">
+        <div class="reply-header">
+          <div>
+            <span class="reply-author"><%= r.author_name %></span>
+            <span class="tag tag-gray"><%= r.author_role %></span>
+          </div>
+          <div class="flex gap-1" style="align-items:center;">
+            <span class="reply-time"><%= new Date(r.created_at).toLocaleString() %></span>
+            <% if (user.role === 'instructor') { %>
+              <form method="POST" action="/discussions/<%= course.id %>/reply/<%= r.id %>/delete" style="display:inline">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this reply?')" style="padding:0.15rem 0.4rem;font-size:0.7rem;">🗑</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+        <div class="rich-content"><%= r.content %></div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+<!-- Reply Form -->
+<div class="card">
+  <div class="card-header"><h2>Write a Reply</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/discussions/<%= course.id %>/thread/<%= thread.id %>/reply">
+      <div class="form-group">
+        <textarea name="content" class="form-control" placeholder="Write your reply... (Max 5000 characters)" required maxlength="5000" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post Reply</button>
+    </form>
+  </div>
+</div>

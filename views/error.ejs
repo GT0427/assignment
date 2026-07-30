@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error — Course Collaboration Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="desktop-auth">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-logo">🎓</div>
+      <h1>Course Collaboration Platform</h1>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-form-container" style="text-align:center;">
+      <div style="font-size:5rem;margin-bottom:1rem;">😕</div>
+      <h2 style="font-size:1.5rem;margin-bottom:0.5rem;"><%= message %></h2>
+      <p class="text-muted" style="margin-bottom:1.5rem;">Something went wrong or the page you're looking for doesn't exist.</p>
+      <a href="/dashboard" class="btn btn-primary btn-lg">Back to Dashboard</a>
+      <% if (typeof user === 'undefined' || !user) { %>
+        <p style="margin-top:1rem;">
+          <a href="/login" class="btn btn-outline">Go to Login</a>
+        </p>
+      <% } %>
+    </div>
+  </div>
+</div>

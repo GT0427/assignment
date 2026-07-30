@@ -1,0 +1,95 @@
+<% locals.path = '/announcements/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <span class="tag tag-info"><%= course.code %></span>
+    <h1>📢 <%= course.title %> — Announcements</h1>
+  </div>
+  <% if (user.role === 'instructor') { %>
+    <button class="btn btn-primary" onclick="document.getElementById('createForm').style.display='block'">➕ Create Announcement</button>
+  <% } %>
+</div>
+
+<% if (locals.error === 'empty_title') { %>
+  <div class="alert alert-error">Announcement Title is Empty.</div>
+<% } %>
+<% if (locals.success === 'posted') { %>
+  <div class="alert alert-success">✅ Announcement posted successfully!</div>
+<% } %>
+
+<!-- Create Form (Instructor) -->
+<% if (user.role === 'instructor') { %>
+<div class="card mb-4" id="createForm" style="display:none;">
+  <div class="card-header"><h2>Create Announcement</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/announcements/<%= course.id %>/create">
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Assignment 1 Deadline Extended" required>
+      </div>
+      <div class="form-group">
+        <label for="content">Content</label>
+        <textarea id="content" name="content" class="form-control" placeholder="Write your announcement here..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Publish Announcement</button>
+      <button type="button" class="btn btn-outline" onclick="document.getElementById('createForm').style.display='none'">Cancel</button>
+    </form>
+  </div>
+</div>
+<% } %>
+
+<!-- Announcements List -->
+<% if (announcements.length === 0) { %>
+  <div class="card">
+    <div class="card-body">
+      <div class="empty-state">
+        <div class="empty-icon">📢</div>
+        <h3>Instructor has not posted any announcements</h3>
+        <p>Announcements will appear here when posted by the instructor.</p>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <% announcements.forEach(a => { %>
+    <div class="card mb-3 <%= !a.is_read ? '' : '' %>" style="<%= !a.is_read ? 'border-left:4px solid var(--primary);' : '' %>">
+      <div class="card-header">
+        <div class="flex-between" style="width:100%;">
+          <div class="flex gap-2" style="align-items:center;">
+            <% if (!a.is_read) { %><span class="tag tag-info">NEW</span><% } %>
+            <h2 style="font-size:1.05rem;"><%= a.title %></h2>
+          </div>
+          <span class="text-sm text-muted"><%= new Date(a.created_at).toLocaleString() %></span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="rich-content"><%= a.content || '(No content)' %></div>
+        <div class="text-sm text-muted mt-2">Posted by <%= a.author_name %>
+          <% if (a.updated_at !== a.created_at) { %> &middot; Updated <%= new Date(a.updated_at).toLocaleString() %><% } %>
+        </div>
+      </div>
+      <% if (user.role === 'instructor') { %>
+      <div class="card-footer flex gap-1">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('edit-<%= a.id %>').style.display='block'">✏️ Edit</button>
+        <form method="POST" action="/announcements/<%= course.id %>/delete/<%= a.id %>" style="display:inline">
+          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this announcement?')">🗑 Delete</button>
+        </form>
+      </div>
+      <!-- Edit Form -->
+      <div id="edit-<%= a.id %>" style="display:none;padding:1.5rem;border-top:1px solid var(--gray-200);">
+        <form method="POST" action="/announcements/<%= course.id %>/edit/<%= a.id %>">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" class="form-control" value="<%= a.title %>" required>
+          </div>
+          <div class="form-group">
+            <label>Content</label>
+            <textarea name="content" class="form-control"><%= a.content %></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Update</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('edit-<%= a.id %>').style.display='none'">Cancel</button>
+        </form>
+      </div>
+      <% } %>
+    </div>
+  <% }) %>
+<% } %>

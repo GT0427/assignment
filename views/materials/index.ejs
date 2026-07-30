@@ -1,0 +1,88 @@
+<% locals.path = '/materials/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <span class="tag tag-info"><%= course.code %></span>
+    <h1>📁 <%= course.title %> — Materials</h1>
+  </div>
+  <% if (user.role === 'instructor') { %>
+    <button class="btn btn-primary" onclick="document.getElementById('uploadForm').style.display='block'">➕ Upload Material</button>
+  <% } %>
+</div>
+
+<% if (locals.error === 'no_file') { %>
+  <div class="alert alert-error">Please select a file to upload.</div>
+<% } %>
+<% if (locals.success === 'uploaded') { %>
+  <div class="alert alert-success">✅ Material uploaded successfully!</div>
+<% } %>
+
+<!-- Upload Form (Instructor) -->
+<% if (user.role === 'instructor') { %>
+<div class="card mb-4" id="uploadForm" style="display:none;">
+  <div class="card-header"><h2>Upload New Material</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/materials/<%= course.id %>/upload" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="title">Material Title</label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Lecture 1 - Introduction">
+      </div>
+      <div class="form-group">
+        <label for="section_id">Section</label>
+        <select id="section_id" name="section_id" class="form-control">
+          <option value="">No section</option>
+          <% sections.forEach(s => { %>
+            <option value="<%= s.id %>"><%= s.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="file">Select File (PDF, DOCX, PPTX, ZIP, etc.)</label>
+        <input type="file" id="file" name="file" class="form-control" required>
+        <small class="text-muted">Max 100MB</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Confirm Upload</button>
+      <button type="button" class="btn btn-outline" onclick="document.getElementById('uploadForm').style.display='none'">Cancel</button>
+    </form>
+  </div>
+</div>
+<% } %>
+
+<!-- Materials List -->
+<div class="card">
+  <div class="card-header"><h2>Course Materials</h2></div>
+  <div class="card-body">
+    <% if (materials.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>No Course Materials Currently Available</h3>
+        <p>Materials uploaded by the instructor will appear here.</p>
+      </div>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Title</th><th>Section</th><th>File</th><th>Size</th><th>Uploaded</th><th></th></tr></thead>
+          <tbody>
+            <% materials.forEach(m => { %>
+              <tr>
+                <td><strong><%= m.title %></strong></td>
+                <td><span class="tag tag-gray"><%= sections.find(s => s.id === m.section_id)?.name || 'Uncategorized' %></span></td>
+                <td><%= m.original_name %></td>
+                <td class="text-sm text-muted"><%= (m.file_size / 1024 / 1024).toFixed(2) %> MB</td>
+                <td class="text-sm text-muted"><%= new Date(m.uploaded_at).toLocaleDateString() %></td>
+                <td>
+                  <a href="/materials/download/<%= m.id %>" class="btn btn-primary btn-sm">⬇ Download</a>
+                  <% if (user.role === 'instructor') { %>
+                    <form method="POST" action="/materials/delete/<%= m.id %>" style="display:inline">
+                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">🗑</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Course Collaboration Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="desktop-auth">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-logo">🎓</div>
+      <h1>Course Collaboration Platform</h1>
+      <p class="auth-subtitle">Join the centralized platform for course management</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feature">
+        <span class="feature-icon">🔐</span>
+        <div>
+          <strong>Role-Based Access</strong>
+          <span>Separate dashboards and permissions for students and instructors</span>
+        </div>
+      </div>
+      <div class="auth-feature">
+        <span class="feature-icon">📂</span>
+        <div>
+          <strong>All-in-One Platform</strong>
+          <span>No more switching between email, cloud storage, and messaging apps</span>
+        </div>
+      </div>
+      <div class="auth-feature">
+        <span class="feature-icon">⚡</span>
+        <div>
+          <strong>Get Started Quickly</strong>
+          <span>Create an account in seconds and enroll in courses immediately</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-form-container">
+      <div class="auth-form-header">
+        <h2>Create Account</h2>
+        <p>Fill in your details to get started</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert-error"><span>⚠️</span> <%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/signup">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Your full name" value="<%= formData.name || '' %>" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Academic Email</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="you@uow.edu.my" value="<%= formData.email || '' %>" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="role">I am a...</label>
+          <select id="role" name="role" class="form-control" required onchange="toggleProfileFields()">
+            <option value="">Select your role</option>
+            <option value="student" <%= formData.role === 'student' ? 'selected' : '' %>>Student</option>
+            <option value="instructor" <%= formData.role === 'instructor' ? 'selected' : '' %>>Instructor</option>
+          </select>
+        </div>
+
+        <!-- Collaboration Profile (for Students) -->
+        <div id="profileFields" style="<%= formData.role === 'instructor' ? 'display:none;' : '' %>">
+          <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:0.75rem;border-bottom:1px solid var(--gray-200);padding-bottom:0.5rem;">
+            🤝 Collaboration Profile <span style="color:var(--gray-400);">(optional — helps others find you)</span>
+          </p>
+          <div class="form-group">
+            <label for="skills">Skills / Expertise</label>
+            <input type="text" id="skills" name="skills" class="form-control" placeholder="e.g. Java, Python, UI Design" value="<%= formData.skills || '' %>">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="collaboration_mode">Preferred Mode</label>
+              <select id="collaboration_mode" name="collaboration_mode" class="form-control">
+                <option value="Online" <%= formData.collaboration_mode === 'Online' ? 'selected' : '' %>>Online</option>
+                <option value="Offline" <%= formData.collaboration_mode === 'Offline' ? 'selected' : '' %>>Offline</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="availability">Availability</label>
+              <input type="text" id="availability" name="availability" class="form-control" placeholder="e.g. Weekday evenings" value="<%= formData.availability || '' %>">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Min 6 chars, with upper, lower, number & symbol" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Re-enter your password" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Sign Up</button>
+      </form>
+
+      <div class="auth-link">
+        Already have an account? <a href="/login">Log in instead</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+
+<script>
+function toggleProfileFields() {
+  const role = document.getElementById('role').value;
+  document.getElementById('profileFields').style.display = role === 'instructor' ? 'none' : '';
+}
+</script>
+</html>

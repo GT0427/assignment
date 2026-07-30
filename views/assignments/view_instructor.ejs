@@ -1,0 +1,128 @@
+<% locals.path = '/assignments/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <h1><%= assignment.title %></h1>
+    <p class="text-muted">
+      Due: <%= new Date(assignment.due_date.replace(' ','T')).toLocaleString() %> &nbsp;|&nbsp;
+      Max Score: <%= assignment.max_score %>
+    </p>
+  </div>
+  <a href="/assignments/<%= course.id %>" class="btn btn-outline">← Back</a>
+</div>
+
+<% if (locals.error === 'invalid_score') { %>
+  <div class="alert alert-error">Point Allocation Invalid — score must be between 0 and <%= assignment.max_score %>.</div>
+<% } %>
+<% if (locals.success === 'graded') { %>
+  <div class="alert alert-success">✅ Grade saved successfully!</div>
+<% } %>
+
+<!-- Student Submissions -->
+<div class="card">
+  <div class="card-header">
+    <h2>Student Submissions (<%= submissions.length %>)</h2>
+    <div class="flex gap-2">
+      <select class="form-control form-control-sm" onchange="filterTable(this.value)" style="width:auto;">
+        <option value="all">All Statuses</option>
+        <option value="submitted">Submitted</option>
+        <option value="not_submitted">Not Submitted</option>
+        <option value="late">Late</option>
+        <option value="graded">Graded</option>
+      </select>
+    </div>
+  </div>
+  <div class="card-body">
+    <% if (submissions.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>No Students Found</h3>
+        <p>No students are enrolled in this course yet.</p>
+      </div>
+    <% } else { %>
+      <div class="table-container">
+        <table id="submissionsTable">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>File</th>
+              <th>Score</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% submissions.forEach(s => { %>
+              <tr data-status="<%= s.status %>">
+                <td><strong><%= s.student_name %></strong></td>
+                <td class="text-sm text-muted"><%= s.student_email %></td>
+                <td>
+                  <span class="tag <%= s.status === 'graded' ? 'tag-success' : s.status === 'submitted' ? 'tag-info' : s.status === 'late' ? 'tag-warning' : 'tag-gray' %>">
+                    <%= s.status.replace('_',' ') %>
+                  </span>
+                </td>
+                <td class="text-sm text-muted"><%= s.submitted_at ? new Date(s.submitted_at).toLocaleString() : '-' %></td>
+                <td>
+                  <% if (s.file_path) { %>
+                    <a href="/assignments/<%= course.id %>/submission/<%= s.id %>/download" class="btn btn-outline btn-sm">⬇ Download</a>
+                  <% } else { %>
+                    <span class="text-muted">—</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (s.score !== null && s.score !== undefined) { %>
+                    <strong style="color:var(--success)"><%= s.score %>/<%= assignment.max_score %></strong>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+                <td>
+                  <% if (s.status !== 'not_submitted') { %>
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('grade-<%= s.id %>').style.display='block'">
+                      <%= s.status === 'graded' ? '✏️ Edit Grade' : '📝 Grade' %>
+                    </button>
+                  <% } %>
+                </td>
+              </tr>
+              <!-- Grade Form (hidden by default) -->
+              <% if (s.status !== 'not_submitted') { %>
+              <tr id="grade-<%= s.id %>" style="display:none;" data-status="<%= s.status %>">
+                <td colspan="7" style="background:var(--gray-50);padding:1rem;">
+                  <form method="POST" action="/assignments/<%= course.id %>/grade/<%= s.id %>">
+                    <div class="flex gap-2" style="align-items:end;">
+                      <div class="form-group" style="margin-bottom:0;">
+                        <label class="text-sm">Score (0–<%= assignment.max_score %>)</label>
+                        <input type="number" name="score" class="form-control" value="<%= s.score || '' %>" min="0" max="<%= assignment.max_score %>" style="width:120px;" required>
+                      </div>
+                      <div class="form-group" style="margin-bottom:0;flex:1;">
+                        <label class="text-sm">Feedback</label>
+                        <input type="text" name="feedback" class="form-control" value="<%= s.feedback || '' %>" placeholder="Feedback for the student...">
+                      </div>
+                      <button type="submit" class="btn btn-success btn-sm">Save Grade</button>
+                      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('grade-<%= s.id %>').style.display='none'">Cancel</button>
+                    </div>
+                  </form>
+                </td>
+              </tr>
+              <% } %>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function filterTable(status) {
+  document.querySelectorAll('#submissionsTable tbody tr[data-status]').forEach(row => {
+    if (status === 'all' || row.dataset.status === status) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+</script>

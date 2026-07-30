@@ -1,0 +1,106 @@
+<% locals.path = '/profile'; %>
+
+<div class="page-header">
+  <h1>👤 My Profile</h1>
+  <div class="flex gap-2">
+    <a href="/profile/edit" class="btn btn-primary">✏️ Edit Profile</a>
+    <% if (user.role === 'student' && !user.is_member) { %>
+      <form method="POST" action="/profile/upgrade" style="display:inline">
+        <button type="submit" class="btn btn-warning">⭐ Upgrade to Member</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<% if (locals.success) { %>
+  <div class="alert alert-success"><span>✅</span> <%= success %></div>
+<% } %>
+
+<div class="grid grid-2">
+  <!-- Basic Info -->
+  <div class="card">
+    <div class="card-header"><h2>Account Information</h2></div>
+    <div class="card-body">
+      <table style="width:100%">
+        <tr><td style="padding:0.6rem 0;color:var(--gray-500);width:140px;">Name</td><td style="padding:0.6rem 0;font-weight:600;"><%= profile.name %></td></tr>
+        <tr><td style="padding:0.6rem 0;color:var(--gray-500);">Email</td><td style="padding:0.6rem 0;"><%= profile.email %></td></tr>
+        <tr><td style="padding:0.6rem 0;color:var(--gray-500);">Role</td><td style="padding:0.6rem 0;"><span class="tag <%= profile.role === 'instructor' ? 'tag-info' : 'tag-success' %>"><%= profile.role.charAt(0).toUpperCase() + profile.role.slice(1) %></span></td></tr>
+        <tr><td style="padding:0.6rem 0;color:var(--gray-500);">Membership</td><td style="padding:0.6rem 0;">
+          <% if (profile.is_member) { %>
+            <span class="tag tag-warning">⭐ Member</span>
+            <span class="text-sm text-muted"> — Unlimited resubmissions</span>
+          <% } else { %>
+            <span class="tag tag-gray">Free</span>
+            <span class="text-sm text-muted"> — Max 2 resubmissions per assignment</span>
+          <% } %>
+        </td></tr>
+        <tr><td style="padding:0.6rem 0;color:var(--gray-500);">Joined</td><td style="padding:0.6rem 0;color:var(--gray-500);"><%= new Date(profile.created_at).toLocaleDateString() %></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Collaboration Profile -->
+  <div class="card">
+    <div class="card-header"><h2>🤝 Collaboration Profile</h2></div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="text-sm text-muted">Skills / Expertise</label>
+        <div style="font-weight:500;margin-top:0.25rem;">
+          <% if (profile.skills) { %>
+            <% profile.skills.split(',').forEach(s => { %>
+              <span class="tag tag-info" style="margin:0.15rem;"><%= s.trim() %></span>
+            <% }) %>
+          <% } else { %>
+            <span class="text-muted">No skills listed yet</span>
+          <% } %>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="text-sm text-muted">Preferred Collaboration Mode</label>
+        <div style="font-weight:500;margin-top:0.25rem;">
+          <span class="tag <%= profile.collaboration_mode === 'Online' ? 'tag-success' : 'tag-warning' %>"><%= profile.collaboration_mode || 'Online' %></span>
+        </div>
+      </div>
+      <div>
+        <label class="text-sm text-muted">Availability</label>
+        <div style="font-weight:500;margin-top:0.25rem;"><%= profile.availability || 'Not specified' %></div>
+      </div>
+    </div>
+    <% if (!profile.skills && !profile.availability) { %>
+    <div class="card-footer">
+      <a href="/profile/edit" class="btn btn-primary btn-sm">Add your collaboration details →</a>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<% if (user.role === 'student' && !user.is_member) { %>
+<!-- Membership Benefits -->
+<div class="card mt-3">
+  <div class="card-header"><h2>⭐ Membership Benefits</h2></div>
+  <div class="card-body">
+    <div class="grid grid-2">
+      <div>
+        <h3 style="font-size:1rem;">Free Plan (Current)</h3>
+        <ul style="padding-left:1.25rem;color:var(--gray-500);line-height:2;">
+          <li>Browse and enroll in courses</li>
+          <li>Access course materials</li>
+          <li>Submit assignments</li>
+          <li><strong style="color:var(--danger);">Limited to 2 resubmissions</strong> per assignment</li>
+        </ul>
+      </div>
+      <div style="border-left:2px solid var(--warning);padding-left:1.5rem;">
+        <h3 style="font-size:1rem;">⭐ Member Plan</h3>
+        <ul style="padding-left:1.25rem;color:var(--gray-700);line-height:2;">
+          <li>Everything in Free plan</li>
+          <li>✅ <strong style="color:var(--success);">Unlimited resubmissions</strong> before deadline</li>
+          <li>✅ Priority access to course materials</li>
+        </ul>
+      </div>
+    </div>
+    <form method="POST" action="/profile/upgrade" class="mt-3">
+      <button type="submit" class="btn btn-warning btn-lg">⭐ Upgrade to Member Now</button>
+    </form>
+  </div>
+</div>
+<% } %>

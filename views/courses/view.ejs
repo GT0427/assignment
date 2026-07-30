@@ -1,0 +1,96 @@
+<% locals.path = '/courses/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span class="tag tag-info" style="font-size:0.85rem;padding:0.3rem 0.75rem;"><%= course.code %></span>
+      <span class="tag tag-gray"><%= course.structure_type.charAt(0).toUpperCase() + course.structure_type.slice(1) %>-based</span>
+    </div>
+    <h1 style="margin-top:0.5rem;"><%= course.title %></h1>
+    <p class="text-muted">👨‍🏫 <%= course.instructor_name %> &nbsp;|&nbsp; 👥 <%= course.student_count %> students</p>
+  </div>
+</div>
+
+<!-- Course Description -->
+<% if (course.description) { %>
+<div class="card mb-4">
+  <div class="card-body">
+    <p><%= course.description %></p>
+  </div>
+</div>
+<% } %>
+
+<!-- Quick Links -->
+<div class="grid grid-4 mb-4">
+  <a href="/materials/<%= course.id %>" class="stat-card primary" style="text-decoration:none;display:block;">
+    <div class="stat-value" style="font-size:1.5rem;">📁</div>
+    <div class="stat-label">Course Materials</div>
+  </a>
+  <a href="/announcements/<%= course.id %>" class="stat-card success" style="text-decoration:none;display:block;position:relative;">
+    <div class="stat-value" style="font-size:1.5rem;">📢</div>
+    <div class="stat-label">Announcements
+      <% if (unreadAnnouncements > 0) { %>
+        <span class="tag tag-danger" style="margin-left:0.5rem;"><%= unreadAnnouncements %> new</span>
+      <% } %>
+    </div>
+  </a>
+  <a href="/assignments/<%= course.id %>" class="stat-card warning" style="text-decoration:none;display:block;">
+    <div class="stat-value" style="font-size:1.5rem;">📝</div>
+    <div class="stat-label">Assignments</div>
+  </a>
+  <a href="/discussions/<%= course.id %>" class="stat-card" style="text-decoration:none;display:block;border-left:4px solid #8B5CF6;">
+    <div class="stat-value" style="font-size:1.5rem;">💬</div>
+    <div class="stat-label">Discussions</div>
+  </a>
+</div>
+
+<!-- Course Sections (Instructor) -->
+<% if (user.role === 'instructor') { %>
+<div class="card mb-4">
+  <div class="card-header">
+    <h2>📂 Course Structure</h2>
+    <span class="text-sm text-muted">Organize materials by <%= course.structure_type %></span>
+  </div>
+  <div class="card-body">
+    <% if (sections.length === 0) { %>
+      <p class="text-muted">No sections created yet. Add sections to organize your materials.</p>
+    <% } else { %>
+      <% sections.forEach(s => { %>
+        <div class="section-item">
+          <span><%= s.name %></span>
+          <form method="POST" action="/courses/<%= course.id %>/section/delete/<%= s.id %>" style="display:inline">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this section?')">Remove</button>
+          </form>
+        </div>
+      <% }) %>
+    <% } %>
+    <form method="POST" action="/courses/<%= course.id %>/section/add" class="flex gap-2 mt-3">
+      <input type="text" name="name" class="form-control" placeholder="Section name (e.g. Week 1, Topic 1)" required style="max-width:300px;">
+      <button type="submit" class="btn btn-primary btn-sm">Add Section</button>
+    </form>
+  </div>
+</div>
+<% } %>
+
+<!-- Recent Announcements -->
+<div class="card">
+  <div class="card-header">
+    <h2>📢 Recent Announcements</h2>
+    <a href="/announcements/<%= course.id %>" class="btn btn-outline btn-sm">View All</a>
+  </div>
+  <div class="card-body">
+    <% if (announcements.length === 0) { %>
+      <p class="text-muted">No announcements posted yet.</p>
+    <% } else { %>
+      <% announcements.forEach(a => { %>
+        <div style="padding:0.75rem 0;border-bottom:1px solid var(--gray-100);">
+          <div class="flex-between">
+            <strong><%= a.title %></strong>
+            <span class="text-sm text-muted"><%= new Date(a.created_at).toLocaleString() %></span>
+          </div>
+          <p class="text-sm text-muted" style="margin-top:0.25rem;"><%= a.content.substring(0, 150) %><%= a.content.length > 150 ? '...' : '' %></p>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>

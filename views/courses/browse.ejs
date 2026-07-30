@@ -1,0 +1,62 @@
+<% locals.path = '/courses/browse'; %>
+
+<div class="page-header">
+  <div>
+    <h1>Browse Courses</h1>
+    <p class="text-muted">Find and enroll in available courses</p>
+  </div>
+</div>
+
+<% if (locals.error === 'already_enrolled') { %>
+  <div class="alert alert-info"><span>ℹ️</span> You are already enrolled in this course.</div>
+<% } %>
+
+<!-- Search -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="GET" action="/courses/browse" class="flex gap-2">
+      <input type="text" name="search" class="form-control" placeholder="Search by course code or title..." value="<%= search || '' %>" style="max-width:400px">
+      <button type="submit" class="btn btn-primary">Search</button>
+      <% if (search) { %>
+        <a href="/courses/browse" class="btn btn-outline">Clear</a>
+      <% } %>
+    </form>
+  </div>
+</div>
+
+<!-- Course List -->
+<div class="card">
+  <div class="card-header">
+    <h2>📚 Available Courses</h2>
+    <span class="text-sm text-muted"><%= courses.length %> courses found</span>
+  </div>
+  <div class="card-body">
+    <% if (courses.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No Course Available for Enrollment</h3>
+        <p><%= search ? 'No courses match your search.' : 'There are no courses available at this time.' %></p>
+      </div>
+    <% } else { %>
+      <div class="grid grid-2">
+        <% courses.forEach(c => { %>
+          <div class="course-card">
+            <div class="course-code"><%= c.code %></div>
+            <div class="course-title"><%= c.title %></div>
+            <% if (c.description) { %>
+              <p class="text-sm text-muted mb-2"><%= c.description.substring(0, 100) %><%= c.description.length > 100 ? '...' : '' %></p>
+            <% } %>
+            <div class="course-meta mb-2">
+              <span>👨‍🏫 <%= c.instructor_name %></span>
+              <span>👥 <%= c.student_count || 0 %> students</span>
+              <span>📐 <%= c.structure_type.charAt(0).toUpperCase() + c.structure_type.slice(1) %>-based</span>
+            </div>
+            <form method="POST" action="/courses/enroll/<%= c.id %>">
+              <button type="submit" class="btn btn-success">Enroll Now</button>
+            </form>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>

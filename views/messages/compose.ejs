@@ -1,0 +1,53 @@
+<% locals.path = '/messages/compose'; %>
+
+<div class="page-header">
+  <h1>✏️ New Message</h1>
+  <a href="/messages" class="btn btn-outline">← Back to Inbox</a>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-error"><span>⚠️</span> <%= error %></div>
+<% } %>
+
+<div class="card" style="max-width:650px;">
+  <div class="card-header">
+    <h2>Compose Message</h2>
+    <% if (receiver) { %>
+      <span class="text-sm text-muted">To: <%= receiver.name %> (<%= receiver.role %>)</span>
+    <% } %>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="/messages/compose">
+      <% if (receiver) { %>
+        <input type="hidden" name="receiver_id" value="<%= receiver.id %>">
+        <div class="form-group">
+          <label>To</label>
+          <div style="font-weight:500;padding:0.5rem 0;">
+            <%= receiver.name %>
+            <span class="tag tag-gray"><%= receiver.role %></span>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="form-group">
+          <label for="receiver_id">To</label>
+          <select name="receiver_id" id="receiver_id" class="form-control" required>
+            <option value="">Select recipient...</option>
+            <% if (typeof allUsers !== 'undefined') { allUsers.forEach(u => { %>
+              <option value="<%= u.id %>" <%= (formData.receiver_id == u.id) ? 'selected' : '' %>><%= u.name %> (<%= u.role %>)</option>
+            <% })} %>
+          </select>
+        </div>
+      <% } %>
+      <div class="form-group">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" class="form-control" placeholder="Message subject..." value="<%= formData.subject || '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="content">Message</label>
+        <textarea id="content" name="content" class="form-control" placeholder="Write your message..." required rows="6"><%= formData.content || '' %></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+      <a href="/messages" class="btn btn-outline btn-lg">Cancel</a>
+    </form>
+  </div>
+</div>

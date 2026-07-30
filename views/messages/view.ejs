@@ -1,0 +1,55 @@
+<% locals.path = '/messages'; %>
+
+<div class="page-header">
+  <div>
+    <a href="/messages" class="text-sm text-muted" style="text-decoration:none;">← Back to Inbox</a>
+    <h1><%= message.subject %></h1>
+  </div>
+  <div class="flex gap-2">
+    <form method="POST" action="/messages/<%= message.id %>/reply" style="display:inline;">
+      <input type="hidden" name="content" value="--- Replying to your message ---">
+    </form>
+    <form method="POST" action="/messages/<%= message.id %>/delete" style="display:inline">
+      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this message?')">🗑 Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="flex-between" style="width:100%">
+      <div>
+        <strong>From:</strong>
+        <a href="/profile/<%= message.sender_id %>" style="color:inherit;"><%= message.sender_name %></a>
+        <span class="tag tag-gray"><%= message.sender_role %></span>
+        &nbsp;→&nbsp;
+        <strong>To:</strong>
+        <a href="/profile/<%= message.receiver_id %>" style="color:inherit;"><%= message.receiver_name %></a>
+        <span class="tag tag-gray"><%= message.receiver_role %></span>
+      </div>
+      <span class="text-sm text-muted"><%= new Date(message.created_at).toLocaleString() %></span>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="rich-content" style="white-space:pre-wrap;line-height:1.8;"><%= message.content %></div>
+  </div>
+  <div class="card-footer">
+    <div class="flex gap-2">
+      <a href="/profile/<%= message.sender_id %>" class="btn btn-outline btn-sm">👤 View Sender Profile</a>
+      <a href="/messages/compose?to=<%= message.sender_id === user.id ? message.receiver_id : message.sender_id %>" class="btn btn-outline btn-sm">✏️ New Message</a>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Reply -->
+<div class="card">
+  <div class="card-header"><h2>↩️ Reply</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/messages/<%= message.id %>/reply">
+      <div class="form-group">
+        <textarea name="content" class="form-control" placeholder="Write your reply..." required rows="4"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Send Reply</button>
+    </form>
+  </div>
+</div>

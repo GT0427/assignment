@@ -1,0 +1,78 @@
+<% locals.path = '/discussions/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <span class="tag tag-info"><%= course.code %></span>
+    <h1>💬 <%= course.title %> — Discussions</h1>
+    <p class="text-muted"><%= threads.length %> thread<%= threads.length !== 1 ? 's' : '' %></p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('createThread').style.display='block'">➕ Create New Thread</button>
+</div>
+
+<% if (locals.error === 'missing_fields') { %>
+  <div class="alert alert-error">Please fill in all fields.</div>
+<% } %>
+<% if (locals.error === 'too_long') { %>
+  <div class="alert alert-error">Post exceeds the maximum character threshold. Please reduce the length.</div>
+<% } %>
+<% if (locals.success === 'posted') { %>
+  <div class="alert alert-success">✅ Thread posted successfully!</div>
+<% } %>
+
+<!-- Create Thread Form -->
+<div class="card mb-4" id="createThread" style="display:none;">
+  <div class="card-header"><h2>Start New Discussion</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/discussions/<%= course.id %>/create">
+      <div class="form-group">
+        <label for="title">Thread Title *</label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Question about Week 3 Lecture" required maxlength="200">
+      </div>
+      <div class="form-group">
+        <label for="content">Content * (Max 5000 characters)</label>
+        <textarea id="content" name="content" class="form-control" placeholder="Write your discussion post..." required maxlength="5000"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post Thread</button>
+      <button type="button" class="btn btn-outline" onclick="document.getElementById('createThread').style.display='none'">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<!-- Thread List -->
+<% if (threads.length === 0) { %>
+  <div class="card">
+    <div class="card-body">
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h3>No discussions yet</h3>
+        <p>Start a new discussion thread to begin the conversation!</p>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <% threads.forEach(t => { %>
+    <div class="thread-card <%= t.is_pinned ? 'pinned' : '' %>">
+      <div class="flex-between mb-2">
+        <div class="flex gap-1" style="align-items:center;">
+          <% if (t.is_pinned) { %><span class="tag tag-warning">📌 Pinned</span><% } %>
+          <h3 style="font-size:1.05rem;"><a href="/discussions/<%= course.id %>/thread/<%= t.id %>" style="color:inherit;text-decoration:none;"><%= t.title %></a></h3>
+        </div>
+        <div class="flex gap-2" style="align-items:center;">
+          <span class="tag tag-info"><%= t.reply_count %> repl<%= t.reply_count !== 1 ? 'ies' : 'y' %></span>
+        </div>
+      </div>
+      <p class="text-sm text-muted mb-2"><%= t.content.substring(0, 200) %><%= t.content.length > 200 ? '...' : '' %></p>
+      <div class="flex-between text-sm text-muted">
+        <span>Posted by <strong><%= t.author_name %></strong> (<%= t.author_role %>) &middot; <%= new Date(t.created_at).toLocaleString() %></span>
+        <div class="flex gap-1">
+          <% if (user.role === 'instructor') { %>
+            <form method="POST" action="/discussions/<%= course.id %>/thread/<%= t.id %>/pin" style="display:inline">
+              <button type="submit" class="btn btn-outline btn-sm"><%= t.is_pinned ? '📌 Unpin' : '📌 Pin' %></button>
+            </form>
+          <% } %>
+          <a href="/discussions/<%= course.id %>/thread/<%= t.id %>" class="btn btn-primary btn-sm">View Thread →</a>
+        </div>
+      </div>
+    </div>
+  <% }) %>
+<% } %>

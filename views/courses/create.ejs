@@ -1,0 +1,38 @@
+<% locals.path = '/courses/create/new'; %>
+
+<div class="page-header">
+  <h1>➕ Create New Course Space</h1>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-error"><span>⚠️</span> <%= error %></div>
+<% } %>
+
+<div class="card" style="max-width:600px;">
+  <div class="card-header"><h2>Course Details</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/courses/create">
+      <div class="form-group">
+        <label for="code">Course Code *</label>
+        <input type="text" id="code" name="code" class="form-control" placeholder="e.g. XBAU2114N" value="<%= formData.code || '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="title">Course Title *</label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Software Development Methodologies" value="<%= formData.title || '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" class="form-control" placeholder="Describe what this course is about..."><%= formData.description || '' %></textarea>
+      </div>
+      <div class="form-group">
+        <label for="structure_type">Organization Structure</label>
+        <select id="structure_type" name="structure_type" class="form-control">
+          <option value="week" <%= formData.structure_type === 'week' ? 'selected' : '' %>>Week-based</option>
+          <option value="topic" <%= formData.structure_type === 'topic' ? 'selected' : '' %>>Topic-based</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg">Create Course Space</button>
+      <a href="/dashboard/instructor" class="btn btn-outline btn-lg ml-2">Cancel</a>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<% locals.path = '/dashboard'; %>
+
+<div class="page-header">
+  <div>
+    <h1>Instructor Dashboard</h1>
+    <p class="text-muted">Welcome back, <%= user.name %>!</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="/courses/create/new" class="btn btn-primary">➕ Create New Course</a>
+    <a href="/analytics" class="btn btn-outline">📈 Analytics</a>
+  </div>
+</div>
+
+<% if (locals.success) { %>
+  <div class="alert alert-success"><span>✅</span> Course created successfully!</div>
+<% } %>
+
+<!-- Stats -->
+<div class="grid grid-3 mb-4">
+  <div class="stat-card primary">
+    <div class="stat-value"><%= courses.length %></div>
+    <div class="stat-label">My Courses</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-value"><%= courses.reduce((s, c) => s + (c.student_count || 0), 0) %></div>
+    <div class="stat-label">Total Students</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-value"><%= recentSubmissions.filter(s => s.status === 'submitted').length %></div>
+    <div class="stat-label">Pending Submissions</div>
+  </div>
+</div>
+
+<!-- My Courses -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h2>📚 My Courses</h2>
+    <a href="/courses/create/new" class="btn btn-primary btn-sm">Create Course</a>
+  </div>
+  <div class="card-body">
+    <% if (courses.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No courses yet</h3>
+        <p>Create your first course to get started.</p>
+      </div>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Code</th><th>Title</th><th>Students</th><th>Assignments</th><th>Created</th><th></th></tr></thead>
+          <tbody>
+            <% courses.forEach(c => { %>
+              <tr>
+                <td><span class="tag tag-info"><%= c.code %></span></td>
+                <td><strong><%= c.title %></strong></td>
+                <td><%= c.student_count || 0 %></td>
+                <td><%= c.assignment_count || 0 %></td>
+                <td class="text-sm text-muted"><%= new Date(c.created_at).toLocaleDateString() %></td>
+                <td><a href="/courses/<%= c.id %>" class="btn btn-outline btn-sm">Open</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Recent Submissions -->
+<% if (recentSubmissions.length > 0) { %>
+<div class="card">
+  <div class="card-header"><h2>📝 Recent Submissions</h2></div>
+  <div class="card-body">
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Status</th><th>Submitted</th></tr></thead>
+        <tbody>
+          <% recentSubmissions.forEach(s => { %>
+            <tr>
+              <td><strong><%= s.student_name %></strong></td>
+              <td><%= s.assignment_title %></td>
+              <td><%= s.course_title %></td>
+              <td><span class="tag <%= s.status === 'graded' ? 'tag-success' : s.status === 'submitted' ? 'tag-info' : 'tag-warning' %>"><%= s.status.replace('_',' ') %></span></td>
+              <td class="text-sm text-muted"><%= new Date(s.submitted_at).toLocaleDateString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>

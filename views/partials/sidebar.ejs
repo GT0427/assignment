@@ -1,0 +1,85 @@
+<%
+const currentPath = locals.path || '';
+const courseId = locals.course ? locals.course.id : null;
+const userRole = user.role;
+%>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="icon">🎓</span>
+    <span>CCP</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'active' : '' %>">
+      <span>📊</span> Dashboard
+    </a>
+
+    <% if (userRole === 'student') { %>
+      <a href="/courses/browse" class="<%= currentPath.startsWith('/courses/browse') ? 'active' : '' %>">
+        <span>🔍</span> Browse Courses
+      </a>
+    <% } %>
+
+    <% if (courseId) { %>
+      <div style="margin: 0.75rem 0 0.5rem 0.5rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6B7280;">
+        Current Course
+      </div>
+      <a href="/courses/<%= courseId %>" class="<%= currentPath === '/courses/' + courseId ? 'active' : '' %>">
+        <span>📚</span> Overview
+      </a>
+      <a href="/materials/<%= courseId %>" class="<%= currentPath.startsWith('/materials') ? 'active' : '' %>">
+        <span>📁</span> Materials
+      </a>
+      <a href="/announcements/<%= courseId %>" class="<%= currentPath.startsWith('/announcements') ? 'active' : '' %>">
+        <span>📢</span> Announcements
+        <% if (locals.unreadAnnouncements && locals.unreadAnnouncements > 0) { %>
+          <span class="badge"><%= unreadAnnouncements %></span>
+        <% } %>
+      </a>
+      <a href="/assignments/<%= courseId %>" class="<%= currentPath.startsWith('/assignments') ? 'active' : '' %>">
+        <span>📝</span> Assignments
+      </a>
+      <a href="/discussions/<%= courseId %>" class="<%= currentPath.startsWith('/discussions') ? 'active' : '' %>">
+        <span>💬</span> Discussions
+      </a>
+    <% } %>
+
+    <a href="/profile" class="<%= currentPath.startsWith('/profile') ? 'active' : '' %>">
+      <span>👤</span> My Profile
+      <% if (userRole === 'student' && user.is_member) { %>
+        <span style="margin-left:auto;font-size:0.7rem;">⭐</span>
+      <% } %>
+    </a>
+
+    <a href="/search" class="<%= currentPath.startsWith('/search') ? 'active' : '' %>">
+      <span>🔍</span> Find People
+    </a>
+
+    <a href="/messages" class="<%= currentPath.startsWith('/messages') ? 'active' : '' %>">
+      <span>✉️</span> Messages
+      <% if (locals.unreadMsgCount && locals.unreadMsgCount > 0) { %>
+        <span class="badge"><%= unreadMsgCount %></span>
+      <% } %>
+    </a>
+
+    <% if (userRole === 'instructor') { %>
+      <a href="/courses/create/new" class="<%= currentPath === '/courses/create/new' ? 'active' : '' %>">
+        <span>➕</span> Create Course
+      </a>
+      <a href="/analytics" class="<%= currentPath.startsWith('/analytics') ? 'active' : '' %>">
+        <span>📈</span> Analytics
+      </a>
+    <% } %>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <strong><%= user.name %></strong>
+      <span><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span>
+    </div>
+    <a href="/logout" class="logout">
+      <span>🚪</span> Logout
+    </a>
+  </div>
+</aside>

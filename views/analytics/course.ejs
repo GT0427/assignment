@@ -1,0 +1,115 @@
+<% locals.path = '/analytics/' + selectedCourse.id; %>
+<% locals.course = selectedCourse; %>
+
+<div class="page-header">
+  <div>
+    <span class="tag tag-info"><%= selectedCourse.code %></span>
+    <h1>📈 <%= selectedCourse.title %> — Analytics</h1>
+  </div>
+  <div class="flex gap-2">
+    <select class="form-control" onchange="if(this.value) window.location='/analytics/'+this.value" style="width:auto;">
+      <option value="">Switch course...</option>
+      <% courses.forEach(c => { %>
+        <option value="<%= c.id %>" <%= c.id === selectedCourse.id ? 'selected' : '' %>><%= c.code %></option>
+      <% }) %>
+    </select>
+  </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="grid grid-4 mb-4">
+  <div class="stat-card primary">
+    <div class="stat-value"><%= analytics.enrollmentCount %></div>
+    <div class="stat-label">Enrolled Students</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-value"><%= analytics.discussionStats.thread_count %></div>
+    <div class="stat-label">Discussion Threads</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-value"><%= analytics.discussionStats.reply_count %></div>
+    <div class="stat-label">Discussion Replies</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value"><%= analytics.assignmentStats.length %></div>
+    <div class="stat-label">Assignments</div>
+  </div>
+</div>
+
+<!-- Assignment Submissions -->
+<div class="card mb-4">
+  <div class="card-header"><h2>📝 Assignment Submissions</h2></div>
+  <div class="card-body">
+    <% if (analytics.assignmentStats.length === 0) { %>
+      <p class="text-muted">No assignments created yet.</p>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Assignment</th><th>Due Date</th><th>Submitted</th><th>Not Submitted</th><th>Graded</th><th>Avg Score</th><th>Rate</th></tr></thead>
+          <tbody>
+            <% analytics.assignmentStats.forEach(a => {
+              const rate = a.total_submissions > 0 ? Math.round((a.submitted_count / a.total_submissions) * 100) : 0;
+            %>
+              <tr>
+                <td><strong><%= a.title %></strong></td>
+                <td class="text-sm"><%= new Date(a.due_date.replace(' ','T')).toLocaleDateString() %></td>
+                <td><span class="tag tag-info"><%= a.submitted_count || 0 %></span></td>
+                <td><span class="tag tag-danger"><%= a.not_submitted_count || 0 %></span></td>
+                <td><span class="tag tag-success"><%= a.graded_count || 0 %></span></td>
+                <td><%= a.avg_score ? a.avg_score + '/' + a.max_score : '-' %></td>
+                <td>
+                  <div class="progress-bar" style="width:100px;">
+                    <div class="progress-fill <%= rate >= 70 ? 'high' : rate >= 40 ? 'medium' : 'low' %>" style="width:<%= rate %>%"></div>
+                  </div>
+                  <small class="text-muted"><%= rate %>%</small>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Student Activity -->
+<div class="card">
+  <div class="card-header"><h2>👥 Student Activity</h2></div>
+  <div class="card-body">
+    <% if (analytics.studentAnalytics.length === 0) { %>
+      <p class="text-muted">No students enrolled yet.</p>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Last Active</th>
+              <th>Materials Viewed</th>
+              <th>Discussion Posts</th>
+              <th>Assignments</th>
+              <th>Engagement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% analytics.studentAnalytics.forEach(s => {
+              const submitRate = s.total_assignments > 0 ? Math.round((s.assignments_submitted / s.total_assignments) * 100) : 0;
+              const score = (s.material_views || 0) * 10 + (s.discussion_posts || 0) * 20 + submitRate * 0.7;
+              const level = score >= 70 ? 'High' : score >= 35 ? 'Medium' : 'Low';
+              const tagClass = level === 'High' ? 'tag-success' : level === 'Medium' ? 'tag-warning' : 'tag-danger';
+            %>
+              <tr>
+                <td><strong><%= s.name %></strong></td>
+                <td class="text-sm text-muted"><%= s.last_active ? new Date(s.last_active).toLocaleDateString() : 'Never' %></td>
+                <td><%= s.material_views || 0 %></td>
+                <td><%= s.discussion_posts || 0 %></td>
+                <td><%= s.assignments_submitted || 0 %>/<%= s.total_assignments || 0 %></td>
+                <td><span class="tag <%= tagClass %>"><%= level %></span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>

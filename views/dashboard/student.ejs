@@ -1,0 +1,106 @@
+<% locals.path = '/dashboard'; %>
+
+<div class="page-header">
+  <div>
+    <h1>Student Dashboard</h1>
+    <p class="text-muted">Welcome back, <%= user.name %>!</p>
+  </div>
+  <a href="/courses/browse" class="btn btn-primary">🔍 Browse Courses</a>
+</div>
+
+<% if (locals.success) { %>
+  <div class="alert alert-success"><span>✅</span> Successfully enrolled in the course!</div>
+<% } %>
+
+<!-- Stats -->
+<div class="grid grid-3 mb-4">
+  <div class="stat-card primary">
+    <div class="stat-value"><%= enrolledCourses.length %></div>
+    <div class="stat-label">Enrolled Courses</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-value"><%= upcomingAssignments.length %></div>
+    <div class="stat-label">Upcoming Assignments</div>
+  </div>
+  <div class="stat-card danger">
+    <div class="stat-value"><%= unreadCount || 0 %></div>
+    <div class="stat-label">Unread Announcements</div>
+  </div>
+</div>
+
+<!-- Enrolled Courses -->
+<div class="card mb-4">
+  <div class="card-header"><h2>📚 My Courses</h2></div>
+  <div class="card-body">
+    <% if (enrolledCourses.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No courses yet</h3>
+        <p>Browse available courses and enroll to get started.</p>
+        <a href="/courses/browse" class="btn btn-primary mt-2">Browse Courses</a>
+      </div>
+    <% } else { %>
+      <div class="grid grid-2">
+        <% enrolledCourses.forEach(c => { %>
+          <div class="course-card">
+            <div class="course-code"><%= c.code %></div>
+            <div class="course-title"><%= c.title %></div>
+            <div class="course-meta">
+              <span>👨‍🏫 <%= c.instructor_name %></span>
+              <span>📅 <%= new Date(c.enrolled_at).toLocaleDateString() %></span>
+            </div>
+            <a href="/courses/<%= c.id %>" class="btn btn-outline btn-sm mt-2">View Course →</a>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Upcoming Assignments -->
+<div class="card mb-4">
+  <div class="card-header"><h2>⏰ Upcoming Assignments</h2></div>
+  <div class="card-body">
+    <% if (upcomingAssignments.length === 0) { %>
+      <div class="empty-state"><div class="empty-icon">🎉</div><h3>No upcoming deadlines</h3><p>You're all caught up!</p></div>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Course</th><th>Assignment</th><th>Due Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <% upcomingAssignments.forEach(a => { %>
+              <tr>
+                <td><%= a.course_code %></td>
+                <td><strong><%= a.title %></strong></td>
+                <td><%= new Date(a.due_date.replace(' ','T')).toLocaleString() %></td>
+                <td><span class="tag <%= a.status === 'submitted' || a.status === 'graded' ? 'tag-success' : 'tag-warning' %>"><%= (a.status || 'Not Submitted').replace('_', ' ') %></span></td>
+                <td><a href="/assignments/<%= a.course_id %>/view/<%= a.id %>" class="btn btn-outline btn-sm">View</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Available Courses -->
+<% if (availableCourses.length > 0) { %>
+<div class="card">
+  <div class="card-header"><h2>🔍 Available Courses</h2></div>
+  <div class="card-body">
+    <div class="grid grid-2">
+      <% availableCourses.slice(0, 4).forEach(c => { %>
+        <div class="course-card">
+          <div class="course-code"><%= c.code %></div>
+          <div class="course-title"><%= c.title %></div>
+          <div class="course-meta"><span>👨‍🏫 <%= c.instructor_name %></span></div>
+          <form method="POST" action="/courses/enroll/<%= c.id %>" class="mt-2">
+            <button type="submit" class="btn btn-success btn-sm">Enroll Now</button>
+          </form>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+<% } %>

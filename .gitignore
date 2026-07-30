@@ -1,0 +1,5 @@
+node_modules/
+database/ccp.db
+database/ccp.db-shm
+database/ccp.db-wal
+uploads/

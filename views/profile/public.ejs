@@ -1,0 +1,63 @@
+<% locals.path = '/profile/' + profile.id; %>
+
+<div class="page-header">
+  <div>
+    <a href="javascript:history.back()" class="text-sm text-muted" style="text-decoration:none;">← Back</a>
+    <h1>
+      <%= profile.name %>
+      <% if (profile.is_member) { %><span class="tag tag-warning">⭐ Member</span><% } %>
+    </h1>
+    <p class="text-muted">
+      <span class="tag <%= profile.role === 'instructor' ? 'tag-info' : 'tag-success' %>"><%= profile.role.charAt(0).toUpperCase() + profile.role.slice(1) %></span>
+      &nbsp;·&nbsp; <%= profile.email %>
+    </p>
+  </div>
+  <a href="/messages/compose?to=<%= profile.id %>" class="btn btn-primary">✉️ Send Message</a>
+</div>
+
+<div class="grid grid-2">
+  <!-- Skills & Expertise -->
+  <div class="card">
+    <div class="card-header"><h2>💡 Skills & Expertise</h2></div>
+    <div class="card-body">
+      <% if (profile.skills) { %>
+        <% profile.skills.split(',').forEach(s => { %>
+          <span class="tag tag-info" style="margin:0.2rem;font-size:0.85rem;padding:0.3rem 0.7rem;"><%= s.trim() %></span>
+        <% }) %>
+      <% } else { %>
+        <p class="text-muted">No skills listed</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Collaboration Info -->
+  <div class="card">
+    <div class="card-header"><h2>🤝 Collaboration</h2></div>
+    <div class="card-body">
+      <table style="width:100%">
+        <tr>
+          <td style="padding:0.6rem 0;color:var(--gray-500);width:140px;">Preferred Mode</td>
+          <td style="padding:0.6rem 0;font-weight:500;">
+            <span class="tag <%= profile.collaboration_mode === 'Online' ? 'tag-success' : 'tag-warning' %>"><%= profile.collaboration_mode || 'Online' %></span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0.6rem 0;color:var(--gray-500);">Availability</td>
+          <td style="padding:0.6rem 0;font-weight:500;"><%= profile.availability || 'Not specified' %></td>
+        </tr>
+        <tr>
+          <td style="padding:0.6rem 0;color:var(--gray-500);">Member Since</td>
+          <td style="padding:0.6rem 0;color:var(--gray-500);"><%= new Date(profile.created_at).toLocaleDateString() %></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mt-3">
+  <div class="card-body" style="text-align:center;">
+    <p class="text-muted mb-2">Want to collaborate with <%= profile.name.split(' ')[0] %>?</p>
+    <a href="/messages/compose?to=<%= profile.id %>" class="btn btn-primary btn-lg">✉️ Send a Message</a>
+  </div>
+</div>

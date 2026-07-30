@@ -1,0 +1,84 @@
+<% locals.path = '/messages'; %>
+
+<div class="page-header">
+  <div>
+    <h1>✉️ Messages</h1>
+    <p class="text-muted"><%= unreadCount %> unread · <%= messages.length %> total</p>
+  </div>
+  <a href="/messages/compose" class="btn btn-primary">✏️ Compose</a>
+</div>
+
+<!-- Tabs -->
+<div class="tabs mb-4">
+  <a href="/messages" class="tab active">Inbox</a>
+  <a href="/messages/sent" class="tab">Sent</a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <% if (messages.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No messages yet</h3>
+        <p>When someone sends you a message, it will appear here.</p>
+        <a href="/search" class="btn btn-primary mt-2">🔍 Find people to message</a>
+      </div>
+    <% } else { %>
+      <% messages.forEach(m => { %>
+        <div class="msg-list-item" style="border:1px solid var(--gray-200);border-radius:var(--radius);margin-bottom:0.5rem;<%= !m.is_read ? 'border-left:4px solid var(--primary);background:#F8FAFF;' : '' %>">
+          <!-- Header row -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.25rem;cursor:pointer;"
+               onclick="toggleMsg(event, 'msg-<%= m.id %>')">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;">
+              <% if (!m.is_read) { %><span class="tag tag-info" style="flex-shrink:0;">NEW</span><% } %>
+              <div style="min-width:0;">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.15rem;">
+                  <strong style="font-size:0.95rem;<%= !m.is_read ? 'color:var(--gray-900);' : '' %>"><%= m.subject %></strong>
+                </div>
+                <div class="text-sm text-muted">
+                  From <strong><%= m.sender_name %></strong>
+                  <span class="tag tag-gray" style="font-size:0.7rem;"><%= m.sender_role %></span>
+                  &nbsp;·&nbsp; <%= new Date(m.created_at).toLocaleString() %>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" style="flex-shrink:0;margin-left:1rem;">
+              <span class="toggle-icon-<%= m.id %>">▼</span> View
+            </button>
+          </div>
+          <!-- Expandable content -->
+          <div id="msg-<%= m.id %>" style="display:none;padding:0 1.25rem 1rem 1.25rem;border-top:1px solid var(--gray-100);">
+            <div style="background:white;border-radius:var(--radius);padding:1rem;margin-top:0.75rem;white-space:pre-wrap;line-height:1.7;color:var(--gray-700);">
+              <%= m.content %>
+            </div>
+            <div class="flex gap-1 mt-3">
+              <a href="/profile/<%= m.sender_id %>" class="btn btn-outline btn-sm">👤 View Profile</a>
+              <a href="/messages/compose?to=<%= m.sender_id %>" class="btn btn-outline btn-sm">✏️ New Message</a>
+              <a href="/messages/<%= m.id %>" class="btn btn-primary btn-sm">↗ Open & Reply</a>
+              <form method="POST" action="/messages/<%= m.id %>/delete" style="display:inline;margin-left:auto;">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this message?')">🗑 Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function toggleMsg(e, id) {
+  e.stopPropagation();
+  const el = document.getElementById(id);
+  const icon = document.querySelector('.toggle-icon-' + id.split('-')[1]);
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    if (icon) icon.textContent = '▲';
+    // Mark as read via AJAX
+    fetch('/messages/read/' + id.split('-')[1], { method: 'POST' }).catch(() => {});
+  } else {
+    el.style.display = 'none';
+    if (icon) icon.textContent = '▼';
+  }
+}
+</script>

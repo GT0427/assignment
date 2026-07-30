@@ -1,0 +1,100 @@
+<% locals.path = '/search'; %>
+
+<div class="page-header">
+  <div>
+    <h1>🔍 Find People</h1>
+    <p class="text-muted">Search for students and instructors by name, role, or skills</p>
+  </div>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="GET" action="/search">
+      <div class="flex gap-2" style="align-items:end;flex-wrap:wrap;">
+        <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0;">
+          <label class="text-sm">Search</label>
+          <input type="text" name="q" class="form-control" placeholder="Name, email, or skills..." value="<%= query.q || '' %>">
+        </div>
+        <div class="form-group" style="width:150px;margin-bottom:0;">
+          <label class="text-sm">Role</label>
+          <select name="role" class="form-control">
+            <option value="">All roles</option>
+            <option value="student" <%= query.role === 'student' ? 'selected' : '' %>>Student</option>
+            <option value="instructor" <%= query.role === 'instructor' ? 'selected' : '' %>>Instructor</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;min-width:180px;margin-bottom:0;">
+          <label class="text-sm">Skill</label>
+          <input type="text" name="skill" class="form-control" placeholder="e.g. Python, Java..." value="<%= query.skill || '' %>">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+        <% if (searched) { %><a href="/search" class="btn btn-outline">Clear</a><% } %>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Results -->
+<% if (searched) { %>
+<div class="card">
+  <div class="card-header">
+    <h2>Results</h2>
+    <span class="text-sm text-muted"><%= results.length %> user<%= results.length !== 1 ? 's' : '' %> found</span>
+  </div>
+  <div class="card-body">
+    <% if (results.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No users found</h3>
+        <p>Try adjusting your search terms or filters.</p>
+      </div>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Role</th><th>Skills</th><th>Mode</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% results.forEach(u => { %>
+              <tr>
+                <td>
+                  <strong><%= u.name %></strong>
+                  <% if (u.is_member) { %><span class="tag tag-warning" style="margin-left:0.35rem;">⭐</span><% } %>
+                </td>
+                <td><span class="tag <%= u.role === 'instructor' ? 'tag-info' : 'tag-success' %>"><%= u.role.charAt(0).toUpperCase() + u.role.slice(1) %></span></td>
+                <td>
+                  <% if (u.skills) { %>
+                    <% u.skills.split(',').slice(0,3).forEach(s => { %>
+                      <span class="tag tag-gray" style="margin:0.1rem;"><%= s.trim() %></span>
+                    <% }) %>
+                  <% } else { %>
+                    <span class="text-muted">—</span>
+                  <% } %>
+                </td>
+                <td class="text-sm"><%= u.collaboration_mode || '—' %></td>
+                <td>
+                  <div class="flex gap-1">
+                    <a href="/profile/<%= u.id %>" class="btn btn-outline btn-sm">👤 View Profile</a>
+                    <a href="/messages/compose?to=<%= u.id %>" class="btn btn-primary btn-sm">✉️ Message</a>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
+<% } else { %>
+<div class="card">
+  <div class="card-body">
+    <div class="empty-state">
+      <div class="empty-icon">🔎</div>
+      <h3>Find classmates and instructors</h3>
+      <p>Use the search above to discover people by name, skills, or role.</p>
+    </div>
+  </div>
+</div>
+<% } %>

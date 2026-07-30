@@ -1,0 +1,33 @@
+<% locals.path = '/analytics'; %>
+
+<div class="page-header">
+  <h1>📈 Student Engagement Analytics</h1>
+</div>
+
+<% if (courses.length === 0) { %>
+  <div class="card">
+    <div class="card-body">
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h3>No courses to analyze</h3>
+        <p>Create a course first to view analytics.</p>
+        <a href="/courses/create/new" class="btn btn-primary mt-2">Create Course</a>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <div class="card">
+    <div class="card-header"><h2>Select a Course</h2></div>
+    <div class="card-body">
+      <div class="grid grid-2">
+        <% courses.forEach(c => { %>
+          <a href="/analytics/<%= c.id %>" class="course-card" style="text-decoration:none;color:inherit;">
+            <div class="course-code"><%= c.code %></div>
+            <div class="course-title"><%= c.title %></div>
+            <p class="text-sm text-muted mt-1">Click to view detailed analytics →</p>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+<% } %>

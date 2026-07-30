@@ -1,0 +1,125 @@
+<% locals.path = '/assignments/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <span class="tag tag-info"><%= assignment.course_code %></span>
+    <h1><%= assignment.title %></h1>
+  </div>
+  <a href="/assignments/<%= course.id %>" class="btn btn-outline">← Back to Assignments</a>
+</div>
+
+<% if (locals.error === 'deadline_passed') { %>
+  <div class="alert alert-error">⚠️ The assignment deadline has passed. Resubmission is not allowed.</div>
+<% } %>
+<% if (locals.error === 'resub_limit') { %>
+  <div class="alert alert-error">
+    ⚠️ You have reached the maximum resubmission limit (2 times) for <strong>Free</strong> plan users.<br>
+    <a href="/profile" style="color:var(--primary);">⭐ Upgrade to Member</a> for unlimited resubmissions.
+  </div>
+<% } %>
+<% if (locals.success === 'submitted') { %>
+  <div class="alert alert-success">✅ Assignment submitted successfully!</div>
+<% } %>
+<% if (locals.success === 'resubmitted') { %>
+  <div class="alert alert-success">✅ Assignment resubmitted successfully!</div>
+<% } %>
+
+<div class="grid grid-2 mb-4">
+  <!-- Assignment Details Card -->
+  <div class="card">
+    <div class="card-header"><h2>Assignment Details</h2></div>
+    <div class="card-body">
+      <div class="rich-content mb-3"><%= assignment.description || 'No description provided.' %></div>
+      <div class="grid grid-2">
+        <div>
+          <label class="text-sm text-muted">Due Date</label>
+          <div style="font-weight:600;"><%= new Date(assignment.due_date.replace(' ','T')).toLocaleString() %></div>
+        </div>
+        <div>
+          <label class="text-sm text-muted">Max Score</label>
+          <div style="font-weight:600;"><%= assignment.max_score %> points</div>
+        </div>
+        <div>
+          <label class="text-sm text-muted">Status</label>
+          <div>
+            <span class="tag <%= submission?.status === 'graded' ? 'tag-success' : submission?.status === 'submitted' ? 'tag-info' : submission?.status === 'late' ? 'tag-warning' : 'tag-gray' %>">
+              <%= (submission?.status || 'not_submitted').replace('_',' ') %>
+            </span>
+          </div>
+        </div>
+        <% if (submission?.score !== null && submission?.score !== undefined) { %>
+        <div>
+          <label class="text-sm text-muted">Score</label>
+          <div style="font-weight:600;color:var(--success);"><%= submission.score %> / <%= assignment.max_score %></div>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submission Card -->
+  <div class="card">
+    <div class="card-header"><h2>My Submission</h2></div>
+    <div class="card-body">
+      <% if (submission?.status === 'not_submitted' || !submission) { %>
+        <% if (!isOverdue) { %>
+          <p class="text-muted mb-3">You haven't submitted this assignment yet.</p>
+          <form method="POST" action="/assignments/<%= course.id %>/submit/<%= assignment.id %>" enctype="multipart/form-data">
+            <div class="form-group">
+              <label>Upload File</label>
+              <input type="file" name="file" class="form-control" required>
+              <small class="text-muted">Accepted: PDF, DOCX, ZIP, PPTX, images</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Assignment</button>
+          </form>
+        <% } else { %>
+          <div class="alert alert-error"><span>⚠️</span> Assignment deadline has passed. Submission is no longer accepted.</div>
+        <% } %>
+      <% } else { %>
+        <div class="mb-3">
+          <label class="text-sm text-muted">Submitted File</label>
+          <div style="font-weight:500;"><%= submission.original_name %></div>
+          <div class="text-sm text-muted">Submitted: <%= new Date(submission.submitted_at).toLocaleString() %></div>
+        </div>
+        <a href="/assignments/<%= course.id %>/submission/<%= submission.id %>/download" class="btn btn-outline btn-sm mb-2">⬇ Download My Submission</a>
+
+        <% if (!isOverdue && submission.status !== 'graded') { %>
+          <form method="POST" action="/assignments/<%= course.id %>/resubmit/<%= assignment.id %>" enctype="multipart/form-data" class="mt-3" style="border-top:1px solid var(--gray-200);padding-top:1rem;">
+            <p class="text-sm font-weight:500 mb-2">Need to make changes? Upload a new file to resubmit.</p>
+            <% const resubCount = submission?.resubmission_count || 0; %>
+            <% if (user.is_member) { %>
+              <div class="text-sm text-muted mb-2"><span class="tag tag-warning">⭐ Member</span> Unlimited resubmissions — used <%= resubCount %> so far</div>
+            <% } else { %>
+              <div class="text-sm text-muted mb-2">
+                <span class="tag tag-gray">Free Plan</span> <%= 2 - resubCount %> of 2 resubmissions remaining
+                <% if (resubCount >= 2) { %>
+                  <span style="color:var(--danger);">— Limit reached!</span>
+                <% } %>
+              </div>
+            <% } %>
+            <div class="form-group">
+              <input type="file" name="file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-warning btn-sm" <%= (!user.is_member && resubCount >= 2) ? 'disabled' : '' %>>Resubmit Assignment</button>
+            <% if (!user.is_member && resubCount >= 2) { %>
+              <a href="/profile" class="btn btn-primary btn-sm">⭐ Upgrade to Member</a>
+            <% } %>
+          </form>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Section -->
+<% if (submission?.feedback) { %>
+<div class="card">
+  <div class="card-header"><h2>📋 Instructor Feedback</h2></div>
+  <div class="card-body">
+    <div class="rich-content"><%= submission.feedback %></div>
+    <% if (submission.graded_at) { %>
+      <div class="text-sm text-muted mt-2">Graded on <%= new Date(submission.graded_at).toLocaleString() %></div>
+    <% } %>
+  </div>
+</div>
+<% } %>

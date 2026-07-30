@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Course Collaboration Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="desktop-auth">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-logo">🎓</div>
+      <h1>Course Collaboration Platform</h1>
+      <p class="auth-subtitle">Centralized course management for students and instructors</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feature">
+        <span class="feature-icon">📚</span>
+        <div>
+          <strong>Course Materials</strong>
+          <span>Access lecture slides, references, and tutorials in one place</span>
+        </div>
+      </div>
+      <div class="auth-feature">
+        <span class="feature-icon">📝</span>
+        <div>
+          <strong>Assignment Management</strong>
+          <span>Submit assignments, track deadlines, and receive grades online</span>
+        </div>
+      </div>
+      <div class="auth-feature">
+        <span class="feature-icon">📢</span>
+        <div>
+          <strong>Stay Updated</strong>
+          <span>Receive course announcements and participate in discussions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-form-container">
+      <div class="auth-form-header">
+        <h2>Welcome Back</h2>
+        <p>Sign in to your account to continue</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert-error"><span>⚠️</span> <%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/login">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="you@uow.edu.my" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Log In</button>
+      </form>
+
+      <div class="auth-link">
+        Don't have an account? <a href="/signup">Create one now</a>
+      </div>
+
+      <div class="auth-demo-info">
+        <details>
+          <summary style="cursor:pointer;font-size:0.85rem;color:var(--gray-500);">Demo Accounts</summary>
+          <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--gray-500);line-height:1.8;">
+            <strong>Instructor:</strong> gerard.chong@uow.edu.my<br>
+            <strong>Student 1:</strong> 0207806@student.uow.edu.my<br>
+            <strong>Student 2:</strong> 0208177@student.uow.edu.my<br>
+            <strong>Student 3:</strong> 0208729@student.uow.edu.my<br>
+            <strong>Password:</strong> Password@1
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

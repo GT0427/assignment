@@ -1,0 +1,41 @@
+<% locals.path = '/profile/edit'; %>
+
+<div class="page-header">
+  <h1>✏️ Edit Profile</h1>
+  <a href="/profile" class="btn btn-outline">← Back to Profile</a>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-error"><span>⚠️</span> <%= error %></div>
+<% } %>
+
+<div class="card" style="max-width:600px;">
+  <div class="card-header"><h2>Collaboration Details</h2></div>
+  <div class="card-body">
+    <form method="POST" action="/profile/edit">
+      <div class="form-group">
+        <label for="skills">Skills / Expertise Areas</label>
+        <input type="text" id="skills" name="skills" class="form-control"
+               placeholder="e.g. Java, Python, UI Design, Database Management"
+               value="<%= profile.skills || '' %>">
+        <small class="text-muted">Comma-separated list of your technical skills</small>
+      </div>
+      <div class="form-group">
+        <label for="collaboration_mode">Preferred Collaboration Mode</label>
+        <select id="collaboration_mode" name="collaboration_mode" class="form-control">
+          <option value="Online" <%= profile.collaboration_mode === 'Online' ? 'selected' : '' %>>Online</option>
+          <option value="Offline" <%= profile.collaboration_mode === 'Offline' ? 'selected' : '' %>>Offline</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="availability">Availability</label>
+        <input type="text" id="availability" name="availability" class="form-control"
+               placeholder="e.g. Mon-Fri 2-5pm, Weekday evenings, Weekends"
+               value="<%= profile.availability || '' %>">
+        <small class="text-muted">When are you generally available for collaboration?</small>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+      <a href="/profile" class="btn btn-outline btn-lg">Cancel</a>
+    </form>
+  </div>
+</div>

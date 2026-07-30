@@ -1,0 +1,63 @@
+<% locals.path = '/assignments/' + course.id; %>
+
+<div class="page-header">
+  <div>
+    <span class="tag tag-info"><%= course.code %></span>
+    <h1>📝 <%= course.title %> — Assignments</h1>
+  </div>
+  <% if (userRole === 'instructor') { %>
+    <a href="/assignments/<%= course.id %>/create" class="btn btn-primary">➕ Create Assignment</a>
+  <% } %>
+</div>
+
+<% if (locals.success === 'created') { %>
+  <div class="alert alert-success">✅ Assignment created successfully!</div>
+<% } %>
+
+<div class="card">
+  <div class="card-header"><h2>All Assignments</h2></div>
+  <div class="card-body">
+    <% if (assignments.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <h3>No assignments yet</h3>
+        <p>Assignments will appear here when the instructor creates them.</p>
+      </div>
+    <% } else { %>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Title</th><th>Due Date</th><th>Max Score</th>
+            <% if (userRole === 'student') { %><th>Status</th><th>Score</th><% } %>
+            <th></th></tr></thead>
+          <tbody>
+            <% assignments.forEach(a => {
+              const now = new Date();
+              const due = new Date(a.due_date.replace(' ','T'));
+              const isOverdue = now > due;
+            %>
+              <tr>
+                <td><strong><%= a.title %></strong></td>
+                <td>
+                  <%= due.toLocaleString() %>
+                  <% if (isOverdue) { %><span class="tag tag-danger">Past Due</span><% } %>
+                </td>
+                <td><%= a.max_score %></td>
+                <% if (userRole === 'student') { %>
+                  <td>
+                    <span class="tag <%= a.submission?.status === 'graded' ? 'tag-success' : a.submission?.status === 'submitted' ? 'tag-info' : a.submission?.status === 'late' ? 'tag-warning' : 'tag-gray' %>">
+                      <%= (a.submission?.status || 'Not Submitted').replace('_',' ') %>
+                    </span>
+                  </td>
+                  <td><%= a.submission?.score !== null && a.submission?.score !== undefined ? a.submission.score + '/' + a.max_score : '-' %></td>
+                <% } %>
+                <td>
+                  <a href="/assignments/<%= course.id %>/view/<%= a.id %>" class="btn btn-outline btn-sm">View Details</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
